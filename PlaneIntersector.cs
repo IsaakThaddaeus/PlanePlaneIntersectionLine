@@ -12,7 +12,7 @@ public static class PlaneIntersector
         //The specific position of this third plane in space can be chosen freely.
 
         Vector3 pointOnPlaneC = Vector3.zero;
-        Vector3 planeCNormal = Vector3.Cross(planeANormal, planeBNormal);
+        Vector3 planeCNormal = Vector3.Cross(planeANormal, planeBNormal).normalized;
         direction = planeCNormal;
 
         float det = calculateMatrixDeterminant(planeANormal, planeBNormal, planeCNormal);
