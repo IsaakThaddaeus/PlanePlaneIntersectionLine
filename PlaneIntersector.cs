@@ -4,33 +4,32 @@ using UnityEngine;
 
 public static class PlaneIntersector
 {
-    
-    //Derived from Graphics Gems 1, this code snippet calculates the intersection of three planes, as described on page 305.    
-    public static void findIntersectionLineBetweenPlanes(Vector3 pointOnPlaneA, Vector3 planeANormal, Vector3 pointOnPlaneB, Vector3 planeBNormal, out Vector3 point, out Vector3 direction)
-    {
-        //Introducing a third plane with its normal vector defined as the cross product of normalA and normalB.
-        //The specific position of this third plane in space can be chosen freely.
+    // For an explanation of the code, please refer to my LinkedIn article:
+    // https://www.linkedin.com/pulse/robust-algorithm-determining-intersection-line-between-johann-hotzel-dqcze%3FtrackingId=bsymw5fITbaRmQpV8JMZUg%253D%253D/?trackingId=bsymw5fITbaRmQpV8JMZUg%3D%3D
+  
+    public static bool getIntersectionLineOfPlanes(Vector3 p1, Vector3 n1, Vector3 p2, Vector3 n2, out Vector3 o, out Vector3 d){
+       
+        Vector3 p3 = Vector3.zero;
+        Vector3 n3 = Vector3.Cross(n1, n2);
+        d = n3.normalized;
+        o = Vector3.zero;
 
-        Vector3 pointOnPlaneC = Vector3.zero;
-        Vector3 planeCNormal = Vector3.Cross(planeANormal, planeBNormal).normalized;
-        direction = planeCNormal;
-
-        float det = calculateMatrixDeterminant(planeANormal, planeBNormal, planeCNormal);
-        if (det == 0.0f){
-            point = Vector3.zero;
-            return;
+        float det = det3x3(n1, n2, n3);
+        if (det == 0){
+            return false;
         }
 
-        point = (Vector3.Dot(pointOnPlaneA, planeANormal) * Vector3.Cross(planeBNormal, planeCNormal) +
-                 Vector3.Dot(pointOnPlaneB, planeBNormal) * Vector3.Cross(planeCNormal, planeANormal) +
-                 Vector3.Dot(pointOnPlaneC, planeCNormal) * Vector3.Cross(planeANormal, planeBNormal)) / det;
+        o = (Vector3.Dot(p1, n1) * Vector3.Cross(n2, n3) +
+             Vector3.Dot(p2, n2) * Vector3.Cross(n3, n1) +
+             Vector3.Dot(p3, n3) * Vector3.Cross(n1, n2)) / det;
+
+        return true;
     }
 
-    private static float calculateMatrixDeterminant(Vector3 vectorA, Vector3 vectorB, Vector3 vectorC)
-    {
-        float detA = vectorA.x * (vectorB.y * vectorC.z - vectorB.z * vectorC.y);
-        float detB = vectorA.y * (vectorB.x * vectorC.z - vectorB.z * vectorC.x);
-        float detC = vectorA.z * (vectorB.x * vectorC.y - vectorB.y * vectorC.x);
+    private static float det3x3(Vector3 a, Vector3 b, Vector3 c){
+        float detA = a.x * (b.y * c.z - b.z * c.y);
+        float detB = a.y * (b.x * c.z - b.z * c.x);
+        float detC = a.z * (b.x * c.y - b.y * c.x);
         return  detA - detB + detC;
     }
 }
